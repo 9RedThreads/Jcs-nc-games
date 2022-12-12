@@ -1,6 +1,6 @@
 # Northcoders House of Games API
 
-Welcome to Josephs NC game repo. 
+Welcome to Josephs NC game repo
 
 Setup instruction
 
