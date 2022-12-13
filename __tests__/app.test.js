@@ -30,7 +30,6 @@ describe("GET requests", () => {
         .expect(200)
         .then(({ body }) => {
           const { category } = body;
-          expect(category).toBeInstanceOf(Array);
           expect(category).toHaveLength(4);
           category.forEach((category) => {
             expect(category).toEqual(
@@ -45,13 +44,12 @@ describe("GET requests", () => {
   });
 
   describe("GET /api/reviews", () => {
-    test("Status: 200, returns an array of review objects", () => {
+    test("Status: 200, returns an array of all review objects", () => {
       return request(app)
         .get("/api/reviews")
         .expect(200)
         .then(({ body }) => {
           const { review } = body;
-          expect(review).toBeInstanceOf(Array);
           expect(review).toHaveLength(13);
           review.forEach((review) => {
             expect(review).toEqual({

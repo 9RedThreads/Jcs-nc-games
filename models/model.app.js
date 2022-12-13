@@ -14,6 +14,13 @@ exports.selectReviews = () => {
     LEFT JOIN comments ON comments.review_id = reviews.review_id
     GROUP BY reviews.review_id
     ORDER BY created_at DESC;`).then(({rows: reviews}) => {
-        return (reviews)? reviews: Promise.reject()
+        return reviews
+    })
+}
+
+exports.selectReviewById = (id) => {
+    console.log(id)
+    return db.query("SELECT * FROM categories;").then(({rows: reviews}) => {
+        return reviews
     })
 }
