@@ -53,30 +53,29 @@ describe("GET requests", () => {
           expect(review).toHaveLength(13);
           review.forEach((review) => {
             expect(review).toEqual({
-                owner: expect.any(String),
-                title: expect.any(String),
-                review_id: expect.any(Number),
-                category: expect.any(String),
-                review_img_url: expect.any(String),
-                created_at: expect.any(String),
-                votes: expect.any(Number),
-                designer: expect.any(String),
-                comment_count: expect.any(String),
-              });
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              category: expect.any(String),
+              review_img_url: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              designer: expect.any(String),
+              comment_count: expect.any(String),
+            });
           });
         });
     });
     test("Status: 200, returns review objects sorted by date in descending order", () => {
-        return request(app)
-          .get("/api/reviews")
-          .expect(200)
-          .then(({ body }) => {
-            const {review} = body
-            expect(review).toBeSortedBy("created_at", { descending: true});
-          });
-      });
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          const { review } = body;
+          expect(review).toBeSortedBy("created_at", { descending: true });
+        });
+    });
   });
-
 
   describe("GET /api/reviews/:review_id", () => {
     test("Status: 200, given an id returns a matching review object", () => {
@@ -85,35 +84,102 @@ describe("GET requests", () => {
         .expect(200)
         .then(({ body }) => {
           const { review } = body;
-            expect(review).toEqual({
-              review_id: 2,
-              title: 'Jenga',
-              designer: 'Leslie Scott',
-              owner: 'philippaclaire9',
-              review_img_url:
-                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
-              review_body: 'Fiddly fun for all the family',
-              category: 'dexterity',
-              created_at: '2021-01-18T10:01:41.251Z',
-              votes: 5
-            });
+          expect(review).toEqual({
+            review_id: 2,
+            title: "Jenga",
+            designer: "Leslie Scott",
+            owner: "philippaclaire9",
+            review_img_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+            review_body: "Fiddly fun for all the family",
+            category: "dexterity",
+            created_at: "2021-01-18T10:01:41.251Z",
+            votes: 5,
+          });
         });
     });
-    test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
+    describe("Error handlers", () => {
+      test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
+        return request(app)
+          .get("/api/reviews/33")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toEqual("nonexistent id");
+          });
+      });
+      test("Status: 400, given a invalid id returns a 'invalid id' msg", () => {
+        return request(app)
+          .get("/api/reviews/banana")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toEqual("invalid request");
+          });
+      });
+    });
+  });
+
+  describe("GET /api/reviews/:review_id/comments", () => {
+    test("Status: 200, given a review id returns an array of all comment objects with that review id", () => {
       return request(app)
-        .get("/api/reviews/33")
-        .expect(404)
+        .get("/api/reviews/2/comments")
+        .expect(200)
         .then(({ body }) => {
-            expect(body.msg).toEqual('nonexistent id');
+          const { comments } = body;
+          expect(comments).toHaveLength(3);
+          expect(comments).toEqual([
+            {
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              review_id: expect.any(Number),
+              created_at: expect.any(String),
+            },
+            {
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              review_id: expect.any(Number),
+              created_at: expect.any(String),
+            },
+            {
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              review_id: expect.any(Number),
+              created_at: expect.any(String),
+            },
+          ]);
         });
     });
-    test("Status: 400, given a invalid id returns a 'invalid id' msg", () => {
+    test("Status: 200, returns comment objects sorted by date in descending order", () => {
       return request(app)
-        .get("/api/reviews/banana")
-        .expect(400)
+        .get("/api/reviews/2/comments")
+        .expect(200)
         .then(({ body }) => {
-            expect(body.msg).toEqual('invalid request');
+          const { comments } = body;
+          expect(comments).toBeSortedBy("created_at", { descending: true });
         });
+    });
+    describe("Error handlers", () => {
+      test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
+        return request(app)
+          .get("/api/reviews/33/comments")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toEqual("nonexistent id");
+          });
+      });
+      test("Status: 400, given a invalid id returns a 'invalid id' msg", () => {
+        return request(app)
+          .get("/api/reviews/banana/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toEqual("invalid request");
+          });
+      });
     });
   });
 });

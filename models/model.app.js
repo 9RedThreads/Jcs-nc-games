@@ -23,3 +23,9 @@ exports.selectReviewById = (id) => {
         return (reviews.length===0)? Promise.reject({ status: 404, msg: "nonexistent id" }): reviews
     })
 }
+
+exports.selectCommentsByReviewById = (id) => {
+    return db.query("SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;", id).then(({rows: comments}) => {
+        return (comments.length===0)? Promise.reject({ status: 404, msg: "nonexistent id" }): comments
+    })
+}
