@@ -19,8 +19,7 @@ exports.selectReviews = () => {
 }
 
 exports.selectReviewById = (id) => {
-    console.log(id)
-    return db.query("SELECT * FROM categories;").then(({rows: reviews}) => {
-        return reviews
+    return db.query("SELECT * FROM reviews WHERE review_id = $1;", id).then(({rows: reviews}) => {
+        return (reviews.length===0)? Promise.reject({ status: 404, msg: "nonexistent id" }): reviews
     })
 }
