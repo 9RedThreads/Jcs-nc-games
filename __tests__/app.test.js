@@ -182,3 +182,27 @@ describe("GET requests", () => {
     });
   });
 });
+
+describe("POST requests", () => {
+  describe("POST /api/reviews/:review_id/comments", () => {
+    test("Status: 201, given a id and request object, adds the request to the comments table returning the posted comment", () => {
+      return request(app)
+        .post("/api/reviews/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments).toHaveLength(1);
+          expect(comments).toEqual([
+            {
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              review_id: expect.any(Number),
+              created_at: expect.any(String),
+            },
+          ]);
+        });
+    });
+  });
+});
