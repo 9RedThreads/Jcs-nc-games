@@ -52,17 +52,19 @@ describe("GET requests", () => {
           const { review } = body;
           expect(review).toHaveLength(13);
           review.forEach((review) => {
-            expect(review).toEqual({
-              owner: expect.any(String),
-              title: expect.any(String),
-              review_id: expect.any(Number),
-              category: expect.any(String),
-              review_img_url: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              designer: expect.any(String),
-              comment_count: expect.any(String),
-            });
+            expect(review).toEqual(
+              expect.objectContaining({
+                owner: expect.any(String),
+                title: expect.any(String),
+                review_id: expect.any(Number),
+                category: expect.any(String),
+                review_img_url: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                designer: expect.any(String),
+                comment_count: expect.any(String),
+              })
+            );
           });
         });
     });
@@ -84,18 +86,20 @@ describe("GET requests", () => {
         .expect(200)
         .then(({ body }) => {
           const { review } = body;
-          expect(review).toEqual({
-            review_id: 2,
-            title: "Jenga",
-            designer: "Leslie Scott",
-            owner: "philippaclaire9",
-            review_img_url:
-              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-            review_body: "Fiddly fun for all the family",
-            category: "dexterity",
-            created_at: "2021-01-18T10:01:41.251Z",
-            votes: 5,
-          });
+          expect(review).toEqual(
+            expect.objectContaining({
+              review_id: 2,
+              title: "Jenga",
+              designer: "Leslie Scott",
+              owner: "philippaclaire9",
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              review_body: "Fiddly fun for all the family",
+              category: "dexterity",
+              created_at: "2021-01-18T10:01:41.251Z",
+              votes: 5,
+            })
+          );
         });
     });
     describe("Error handlers", () => {
@@ -126,32 +130,18 @@ describe("GET requests", () => {
         .then(({ body }) => {
           const { comments } = body;
           expect(comments).toHaveLength(3);
-          expect(comments).toEqual([
-            {
-              comment_id: expect.any(Number),
-              body: expect.any(String),
-              votes: expect.any(Number),
-              author: expect.any(String),
-              review_id: expect.any(Number),
-              created_at: expect.any(String),
-            },
-            {
-              comment_id: expect.any(Number),
-              body: expect.any(String),
-              votes: expect.any(Number),
-              author: expect.any(String),
-              review_id: expect.any(Number),
-              created_at: expect.any(String),
-            },
-            {
-              comment_id: expect.any(Number),
-              body: expect.any(String),
-              votes: expect.any(Number),
-              author: expect.any(String),
-              review_id: expect.any(Number),
-              created_at: expect.any(String),
-            },
-          ]);
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                body: expect.any(String),
+                votes: expect.any(Number),
+                author: expect.any(String),
+                review_id: expect.any(Number),
+                created_at: expect.any(String),
+              })
+            );
+          });
         });
     });
     test("Status: 200, returns comment objects sorted by date in descending order", () => {
@@ -161,6 +151,15 @@ describe("GET requests", () => {
         .then(({ body }) => {
           const { comments } = body;
           expect(comments).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+    test("Status: 200, given a valid id with no comments", () => {
+      return request(app)
+        .get("/api/reviews/4/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments).toEqual([]);
         });
     });
     describe("Error handlers", () => {
