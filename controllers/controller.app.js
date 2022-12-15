@@ -1,5 +1,5 @@
 const { query } = require('../db/connection')
-const {selectCategories, selectReviews, selectReviewById, selectCommentsByReviewById} = require('../models/model.app')
+const {selectCategories, selectReviews, selectReviewById, selectCommentsByReviewById, insertComment} = require('../models/model.app')
 const {checkId} = require('../utils/utils')
 
 exports.getCategories = (req, res) => {
@@ -30,3 +30,13 @@ exports.getCommentsByReviewId = (req, res, next) => {
     })
     .catch(next);
 }
+
+exports.postComment = (req, res, next) => {
+    const id = checkId(req.params)
+    const newComment = req.body;
+    insertComment(id, newComment)
+      .then((comment) => {
+        res.status(201).send({ comment });
+      })
+      .catch(next);
+  };

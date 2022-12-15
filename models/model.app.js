@@ -36,3 +36,15 @@ exports.selectCommentsByReviewById = (id) => {
         return comments
     })
 }
+
+exports.insertComment = (id, comment) => {
+    const { username, body } = comment;
+    return db
+      .query(
+        "INSERT INTO comments (review_id, author, body) VALUES ($1, $2, $3) RETURNING *;",
+        [...id, username, body]
+      )
+      .then(({ rows: comment }) => {
+        return comment;
+      });
+  };

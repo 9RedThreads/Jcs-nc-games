@@ -183,25 +183,71 @@ describe("GET requests", () => {
   });
 });
 
-describe("POST requests", () => {
+describe.only("POST requests", () => {
   describe("POST /api/reviews/:review_id/comments", () => {
     test("Status: 201, given a id and request object, adds the request to the comments table returning the posted comment", () => {
+      const newComment = {
+        username: "mallionaire",
+        body: "abc 123",
+      };
       return request(app)
         .post("/api/reviews/2/comments")
-        .expect(200)
+        .send(newComment)
+        .expect(201)
         .then(({ body }) => {
-          const { comments } = body;
-          expect(comments).toHaveLength(1);
-          expect(comments).toEqual([
-            {
+          const { comment } = body;
+          expect(comment).toHaveLength(1);
+          expect(...comment).toEqual(
+            expect.objectContaining({
               comment_id: expect.any(Number),
-              body: expect.any(String),
+              body: "abc 123",
               votes: expect.any(Number),
-              author: expect.any(String),
-              review_id: expect.any(Number),
+              author: "mallionaire",
+              review_id: 2,
               created_at: expect.any(String),
-            },
-          ]);
+            })
+          );
+        });
+    });
+  });
+  describe("Error handlers", () => {
+    test("Status: 404, given a valid but nonexistent id returns a 'invalid request' msg", () => {
+      const newComment = {
+        username: "mallionaire",
+        body: "abc 123",
+      };
+      return request(app)
+        .post("/api/reviews/33/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
+        });
+    });
+    test("Status: 400, given a invalid id returns a 'invalid request' msg", () => {
+      const newComment = {
+        username: "mallionaire",
+        body: "abc 123",
+      };
+      return request(app)
+      .post("/api/reviews/banana/comments")
+      .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
+        });
+    });
+    test("Status: 404, given a nonexistent username returns a 'invalid request' msg", () => {
+      const newComment = {
+        username: "Bobbybob",
+        body: "abc 123",
+      };
+      return request(app)
+      .post("/api/reviews/2/comments")
+      .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
         });
     });
   });
