@@ -5,14 +5,15 @@ const {
   getCategories,
   getReviews,
   getReviewById,
+  getCommentsByReviewId
 } = require("./controllers/controller.app");
 
 app.get("/api/categories", getCategories);
 app.get("/api/reviews", getReviews);
 app.get("/api/reviews/:review_id", getReviewById);
+app.get("/api/reviews/:review_id/comments", getCommentsByReviewId)
 
 app.use((err, req, res, next) => {
-  console.log(err);
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   } else {
@@ -21,7 +22,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err.code);
   if (err.code === "22P02") {
     res.status(400).send({ msg: "invalid request" });
   } else {
