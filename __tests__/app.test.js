@@ -183,7 +183,7 @@ describe("GET requests", () => {
   });
 });
 
-describe.only("POST requests", () => {
+describe("POST requests", () => {
   describe("POST /api/reviews/:review_id/comments", () => {
     test("Status: 201, given a id and request object, adds the request to the comments table returning the posted comment", () => {
       const newComment = {
@@ -198,6 +198,35 @@ describe.only("POST requests", () => {
           const { comment } = body;
           expect(comment).toHaveLength(1);
           expect(...comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              body: "abc 123",
+              votes: expect.any(Number),
+              author: "mallionaire",
+              review_id: 2,
+              created_at: expect.any(String),
+            })
+          );
+        });
+    });
+    test.only("Status: 201, given a request object, adds the request to the comments table ignoring any unnecessary properties", () => {
+      const newComment = {
+        username: "mallionaire",
+        body: "abc 123",
+        banana: "banana"
+      };
+      return request(app)
+        .post("/api/reviews/2/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          const { comment } = body;
+          expect(comment).toHaveLength(1);
+          console.log(comment)
+          expect(...comment).toEqual(
+            expect.not.objectContaining({
+              banana: "banana"
+            }),
             expect.objectContaining({
               comment_id: expect.any(Number),
               body: "abc 123",
