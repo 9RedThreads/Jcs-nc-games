@@ -1,5 +1,5 @@
 const { query } = require('../db/connection')
-const {selectCategories, selectReviews, selectReviewById, selectCommentsByReviewById, insertComment} = require('../models/model.app')
+const {selectCategories, selectReviews, selectReviewById, selectCommentsByReviewById, insertComment, updateVote} = require('../models/model.app')
 const {checkId} = require('../utils/utils')
 
 exports.getCategories = (req, res) => {
@@ -37,6 +37,16 @@ exports.postComment = (req, res, next) => {
     insertComment(id, newComment)
       .then((comment) => {
         res.status(201).send({ comment });
+      })
+      .catch(next);
+  };
+
+  exports.patchVotes = (req, res, next) => {
+    const id = checkId(req.params)
+    const newVote = req.body;
+    updateVote(id, newVote)
+      .then((review) => {
+        res.status(200).send({review});
       })
       .catch(next);
   };

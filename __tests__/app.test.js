@@ -258,8 +258,8 @@ describe("POST requests", () => {
         body: "abc 123",
       };
       return request(app)
-      .post("/api/reviews/banana/comments")
-      .send(newComment)
+        .post("/api/reviews/banana/comments")
+        .send(newComment)
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toEqual("invalid request");
@@ -271,9 +271,78 @@ describe("POST requests", () => {
         body: "abc 123",
       };
       return request(app)
-      .post("/api/reviews/2/comments")
-      .send(newComment)
+        .post("/api/reviews/2/comments")
+        .send(newComment)
         .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
+        });
+    });
+  });
+});
+
+describe("PATCH requests", () => {
+  describe("PATCH /api/reviews/:review_id", () => {
+    test("Status: 200, given a id and votes object, increments votes in the review table", () => {
+      const newVote = {
+        inc_votes: 1
+      };
+      return request(app)
+        .patch("/api/reviews/2")
+        .send(newVote)
+        .expect(200)
+        .then(({ body }) => {
+          const { review } = body;
+          expect(review).toHaveLength(1);
+          expect(...review).toEqual(
+            expect.objectContaining({
+              owner: "philippaclaire9",
+              title: 'Jenga',
+              review_id: 2,
+              category: 'dexterity',
+              review_body: "Fiddly fun for all the family",
+              review_img_url: 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              created_at: expect.any(String),
+              votes: 6,
+              designer: 'Leslie Scott',
+            })
+          );
+        });
+    });
+  });
+  describe("Error handlers", () => {
+    test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
+      const newVote = {
+        inc_votes: 1
+      };
+      return request(app)
+        .patch("/api/reviews/33/")
+        .send(newVote)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("nonexistent id");
+        });
+    });
+    test("Status: 400, given a invalid id returns a 'invalid request' msg", () => {
+      const newVote = {
+        inc_votes: 1
+      };
+      return request(app)
+        .patch("/api/reviews/banana/")
+        .send(newVote)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
+        });
+    });
+    test("Status: 400, given a invalid vote object returns a 'invalid request' msg", () => {
+      const newVote = {
+        inc_votes: "banana"
+      };
+      return request(app)
+        .patch("/api/reviews/2")
+        .send(newVote)
+        .expect(400)
         .then(({ body }) => {
           expect(body.msg).toEqual("invalid request");
         });
