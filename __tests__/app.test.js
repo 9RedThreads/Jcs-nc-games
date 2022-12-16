@@ -181,7 +181,28 @@ describe("GET requests", () => {
       });
     });
   });
+
+  describe("GET /api/users", () => {
+    test("Status: 200, returns an array of all user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toEqual(
+              expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  avatar_url: expect.any(String)
+              })
+            );
+          });
+        });
+    });
 });
+})
 
 describe("POST requests", () => {
   describe("POST /api/reviews/:review_id/comments", () => {
