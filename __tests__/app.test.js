@@ -79,7 +79,7 @@ describe("GET requests", () => {
     });
   });
 
-  describe.only("GET /api/reviews+queries", () => {
+  describe("GET /api/reviews+queries", () => {
     test("Status: 200, returns review object with the specified category defaults to all reviews", () => {
       return request(app)
         .get("/api/reviews?category=dexterity")
