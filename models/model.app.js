@@ -81,3 +81,9 @@ exports.updateVote = (id, vote) => {
       : review;
     });
 };
+
+exports.selectUsers = () => {
+  return db.query("SELECT * FROM users;").then(({ rows: users }) => {
+    return users;
+  });
+};
