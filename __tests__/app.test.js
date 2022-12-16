@@ -209,7 +209,7 @@ describe("POST requests", () => {
           );
         });
     });
-    test.only("Status: 201, given a request object, adds the request to the comments table ignoring any unnecessary properties", () => {
+    test("Status: 201, given a request object, adds the request to the comments table ignoring any unnecessary properties", () => {
       const newComment = {
         username: "mallionaire",
         body: "abc 123",
@@ -222,7 +222,6 @@ describe("POST requests", () => {
         .then(({ body }) => {
           const { comment } = body;
           expect(comment).toHaveLength(1);
-          console.log(comment)
           expect(...comment).toEqual(
             expect.not.objectContaining({
               banana: "banana"
