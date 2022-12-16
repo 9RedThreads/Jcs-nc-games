@@ -87,3 +87,16 @@ exports.selectUsers = () => {
     return users;
   });
 };
+
+exports.deleteComment = (id) => {
+  return db
+    .query(
+      "DELETE FROM comments WHERE comment_id = $1 RETURNING *;",
+      [...id]
+    )
+    .then(({ rows: comment }) => {
+      return comment.length === 0
+      ? Promise.reject({ status: 404, msg: "nonexistent id" })
+      : comment;
+    });
+};

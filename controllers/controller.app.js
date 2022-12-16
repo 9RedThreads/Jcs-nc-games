@@ -6,7 +6,8 @@ const {
     selectCommentsByReviewById,
     insertComment,
     updateVote,
-    selectUsers
+    selectUsers,
+    deleteComment
  } = require('../models/model.app')
 const {checkId, getQueries} = require('../utils/utils')
 
@@ -66,3 +67,12 @@ exports.postComment = (req, res, next) => {
     })
     .catch(next);
 }
+
+exports.deleteCommentById = (req, res, next) => {
+    const id = checkId(req.params)
+    deleteComment(id)
+      .then(() => {
+        res.status(204).send("no content");
+      })
+      .catch(next);
+  };

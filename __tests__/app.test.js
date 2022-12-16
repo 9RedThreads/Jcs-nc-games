@@ -101,7 +101,8 @@ describe("GET requests", () => {
                 votes: expect.any(Number),
                 designer: "Leslie Scott",
                 comment_count: expect.any(String),
-              }));
+              })
+            );
           });
         });
     });
@@ -363,7 +364,8 @@ describe("PATCH requests", () => {
               created_at: expect.any(String),
               votes: 6,
               designer: "Leslie Scott",
-            }));
+            })
+          );
         });
     });
   });
@@ -402,6 +404,55 @@ describe("PATCH requests", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toEqual("invalid request");
+        });
+    });
+  });
+});
+
+describe("DELETE requests", () => {
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("status: 204, given a comment id remove that entry from the comments table", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(() => {
+          return request(app)
+            .get("/api/reviews/2/comments")
+            .expect(200)
+            .then(({ body }) => {
+              const { comments } = body;
+              expect(comments).toHaveLength(2);
+              comments.forEach((comment) => {
+                expect(comment).toEqual(
+                  expect.objectContaining({
+                    comment_id: expect.any(Number),
+                    body: expect.any(String),
+                    votes: expect.any(Number),
+                    author: expect.any(String),
+                    review_id: expect.any(Number),
+                    created_at: expect.any(String),
+                  })
+                );
+              });
+            });
+        });
+    });
+  });
+  describe("Error handling", () => {
+    test('status: 400, given an invalid comment id returns "invalid request" msg', () => {
+      return request(app)
+        .delete("/api/comments/banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("invalid request");
+        });
+    });
+    test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
+      return request(app)
+        .delete("/api/comments/33")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("nonexistent id");
         });
     });
   });
