@@ -1,24 +1,24 @@
 const db = require("../db/connection");
+const { includes } = require('lodash')
+
 
 exports.selectCategories = () => {
   return db.query("SELECT * FROM categories;").then(({ rows: categories }) => {
     return categories;
   });
 };
-exports.selectReviews = () => {
-  return db
-    .query(
-      `SELECT
-    reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.created_at, reviews.votes, reviews.designer,
-    COUNT(comments.review_id) AS comment_count
-    FROM reviews
-    LEFT JOIN comments ON comments.review_id = reviews.review_id
-    GROUP BY reviews.review_id
-    ORDER BY created_at DESC;`
-    )
-    .then(({ rows: reviews }) => {
-      return reviews;
-    });
+exports.selectReviews = (queries) => {
+  let defaultQ = `SELECT
+  reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.created_at, reviews.votes, reviews.designer,
+  COUNT(comments.review_id) AS comment_count
+  FROM reviews`;
+  defaultQ += ` LEFT JOIN comments ON comments.review_id = reviews.review_id `;
+  if (queries.category !== "*")
+    defaultQ += ` WHERE reviews.category = '${queries.category}'`;
+  defaultQ += ` GROUP BY reviews.review_id ORDER BY ${queries.sort_by} ${queries.order};`;
+  return db.query(defaultQ).then(({ rows: reviews }) => {
+    return reviews;
+  });
 };
 
 exports.selectReviewById = (id) => {
@@ -77,8 +77,8 @@ exports.updateVote = (id, vote) => {
     )
     .then(({ rows: review }) => {
       return review.length === 0
-      ? Promise.reject({ status: 404, msg: "nonexistent id" })
-      : review;
+        ? Promise.reject({ status: 404, msg: "nonexistent id" })
+        : review;
     });
 };
 

@@ -8,7 +8,7 @@ const {
   getCommentsByReviewId,
   postComment,
   patchVotes,
-  getUsers
+  getUsers,
 } = require("./controllers/controller.app");
 
 app.use(express.json());

@@ -80,38 +80,66 @@ describe("GET requests", () => {
   });
 
   describe.only("GET /api/reviews+queries", () => {
-    test("Status: 200, returns a queried review objects", () => {
+    test("Status: 200, returns review object with the specified category defaults to all reviews", () => {
       return request(app)
         .get("/api/reviews?category=dexterity")
         .expect(200)
         .then(({ body }) => {
           const { review } = body;
           expect(review).toHaveLength(1);
+          expect(review).toBeSortedBy("created_at", { descending: true });
           review.forEach((review) => {
             expect(review).toEqual(
               expect.objectContaining({
-                owner: expect.any(String),
-                title: expect.any(String),
-                review_id: expect.any(Number),
-                category: expect.any(String),
-                review_img_url: expect.any(String),
+                owner: "philippaclaire9",
+                title: "Jenga",
+                review_id: 2,
+                category: "dexterity",
+                review_img_url:
+                  "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
                 created_at: expect.any(String),
                 votes: expect.any(Number),
-                designer: expect.any(String),
+                designer: "Leslie Scott",
                 comment_count: expect.any(String),
-              })
-            );
+              }));
           });
         });
     });
-    test("Status: 200, returns review objects sorted by date in descending order", () => {
+    test("Status: 200, returns review objects sorted by given column (defaulting to created_at)in given order (defaulting to descending)", () => {
       return request(app)
-        .get("/api/reviews")
+        .get("/api/reviews?sort_by=owner&order=ASC")
         .expect(200)
         .then(({ body }) => {
           const { review } = body;
-          expect(review).toBeSortedBy("created_at", { descending: true });
+          expect(review).toBeSortedBy("owner", { ascending: true });
         });
+    });
+    describe("Error handling", () => {
+      test("Status: 200, given invalid queries will still return the defaults and a status 200", () => {
+        return request(app)
+          .get("/api/reviews?category=banana&sort_by=banana&order=banana")
+          .expect(200)
+          .then(({ body }) => {
+            const { review } = body;
+            expect(review).toHaveLength(13);
+            expect(review).toBeSortedBy("created_at", { descending: true });
+            review.forEach((review) => {
+              expect(review).toEqual(
+                expect.objectContaining({
+                  owner: expect.any(String),
+                  title: expect.any(String),
+                  review_id: expect.any(Number),
+                  category: expect.any(String),
+                  review_img_url: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  designer: expect.any(String),
+                  comment_count: expect.any(String),
+                })
+              );
+            });
+          });
+      });
     });
   });
 
@@ -229,16 +257,16 @@ describe("GET requests", () => {
           users.forEach((user) => {
             expect(user).toEqual(
               expect.objectContaining({
-                  username: expect.any(String),
-                  name: expect.any(String),
-                  avatar_url: expect.any(String)
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
               })
             );
           });
         });
     });
+  });
 });
-})
 
 describe("POST requests", () => {
   describe("POST /api/reviews/:review_id/comments", () => {
@@ -314,7 +342,7 @@ describe("PATCH requests", () => {
   describe("PATCH /api/reviews/:review_id", () => {
     test("Status: 200, given a id and votes object, increments votes in the review table", () => {
       const newVote = {
-        inc_votes: 1
+        inc_votes: 1,
       };
       return request(app)
         .patch("/api/reviews/2")
@@ -326,23 +354,23 @@ describe("PATCH requests", () => {
           expect(...review).toEqual(
             expect.objectContaining({
               owner: "philippaclaire9",
-              title: 'Jenga',
+              title: "Jenga",
               review_id: 2,
-              category: 'dexterity',
+              category: "dexterity",
               review_body: "Fiddly fun for all the family",
-              review_img_url: 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              review_img_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
               created_at: expect.any(String),
               votes: 6,
-              designer: 'Leslie Scott',
-            })
-          );
+              designer: "Leslie Scott",
+            }));
         });
     });
   });
   describe("Error handlers", () => {
     test("Status: 404, given a valid but nonexistent id returns a 'nonexistent id' msg", () => {
       const newVote = {
-        inc_votes: 1
+        inc_votes: 1,
       };
       return request(app)
         .patch("/api/reviews/33/")
@@ -354,7 +382,7 @@ describe("PATCH requests", () => {
     });
     test("Status: 400, given a invalid id returns a 'invalid request' msg", () => {
       const newVote = {
-        inc_votes: 1
+        inc_votes: 1,
       };
       return request(app)
         .patch("/api/reviews/banana/")
@@ -366,7 +394,7 @@ describe("PATCH requests", () => {
     });
     test("Status: 400, given a invalid vote object returns a 'invalid request' msg", () => {
       const newVote = {
-        inc_votes: "banana"
+        inc_votes: "banana",
       };
       return request(app)
         .patch("/api/reviews/2")
