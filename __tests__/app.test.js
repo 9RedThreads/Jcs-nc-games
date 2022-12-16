@@ -79,6 +79,42 @@ describe("GET requests", () => {
     });
   });
 
+  describe.only("GET /api/reviews+queries", () => {
+    test("Status: 200, returns a queried review objects", () => {
+      return request(app)
+        .get("/api/reviews?category=dexterity")
+        .expect(200)
+        .then(({ body }) => {
+          const { review } = body;
+          expect(review).toHaveLength(1);
+          review.forEach((review) => {
+            expect(review).toEqual(
+              expect.objectContaining({
+                owner: expect.any(String),
+                title: expect.any(String),
+                review_id: expect.any(Number),
+                category: expect.any(String),
+                review_img_url: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                designer: expect.any(String),
+                comment_count: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("Status: 200, returns review objects sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          const { review } = body;
+          expect(review).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+  });
+
   describe("GET /api/reviews/:review_id", () => {
     test("Status: 200, given an id returns a matching review object", () => {
       return request(app)

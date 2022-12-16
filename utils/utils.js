@@ -4,3 +4,7 @@ exports.checkId = (id)=>{
 const ids = Object.values(id)
 return ids
 }
+
+exports.getQueries = (queries)=>{
+
+    }
