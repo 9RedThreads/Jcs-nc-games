@@ -8,7 +8,7 @@ const {
     updateVote,
     selectUsers
  } = require('../models/model.app')
-const {checkId} = require('../utils/utils')
+const {checkId, getQueries} = require('../utils/utils')
 
 exports.getCategories = (req, res) => {
     selectCategories().then((category) => {
@@ -17,7 +17,8 @@ exports.getCategories = (req, res) => {
 }
 
 exports.getReviews = (req, res, next) => {
-    selectReviews().then((review) => {
+    const queries = getQueries(req.query)
+    selectReviews(queries).then((review) => {
         res.status(200).send({review})
     })
     .catch(next);
